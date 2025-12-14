@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import requests
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -41,8 +44,9 @@ Format STRICTLY as:
 
 def generate_lesson():
     llm = ChatOpenAI(
-        model="grok-2",
-        api_key=os.environ["GROK_API_KEY"],
+        model="llama-3.3-70b-versatile",
+        api_key=os.environ["GROQ_API_KEY"],
+        base_url="https://api.groq.com/openai/v1",
         temperature=0.7,
     )
 
@@ -55,10 +59,13 @@ def generate_lesson():
     return chain.invoke({})
 
 def send_to_slack(text: str):
-    payload = {"text": text}
     response = requests.post(
-        os.environ["SLACK_WEBHOOK_URL"],
-        json=payload,
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": f"Bearer {os.environ['SLACK_BOT_TOKEN']}"},
+        json={
+            "channel": os.environ["SLACK_CHANNEL_ID"],
+            "text": text,
+        },
         timeout=10,
     )
     response.raise_for_status()
