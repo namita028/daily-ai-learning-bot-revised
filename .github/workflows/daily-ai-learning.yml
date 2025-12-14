@@ -19,10 +19,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install langchain langchain-core requests langchain-openai
+          pip install -r requirements.txt
 
       - name: Run daily learning script
         env:
-          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: python daily_learning.py
