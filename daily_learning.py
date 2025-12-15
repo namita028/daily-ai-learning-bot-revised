@@ -105,12 +105,15 @@ Format STRICTLY as:
 """
 
 def get_day_number():
-    """Calculate day number based on a start date."""
-    from datetime import datetime
-    start_date = datetime(2025, 12, 15)  # Curriculum start date
-    today = datetime.now()
+    """Calculate day number based on a start date (using UTC)."""
+    from datetime import datetime, timezone
+    start_date = datetime(2025, 12, 16, tzinfo=timezone.utc)  # Curriculum start date (UTC)
+    today = datetime.now(timezone.utc)
     day_number = (today - start_date).days + 1
-    return max(1, min(day_number, len(LEARNING_CURRICULUM)))
+    # Loop back to day 1 after completing all topics
+    if day_number > len(LEARNING_CURRICULUM):
+        day_number = ((day_number - 1) % len(LEARNING_CURRICULUM)) + 1
+    return max(1, day_number)
 
 def generate_lesson():
     day_number = get_day_number()
@@ -149,5 +152,10 @@ def send_to_slack(text: str):
     response.raise_for_status()
 
 if __name__ == "__main__":
+    day_number = get_day_number()
+    topic = LEARNING_CURRICULUM[day_number - 1]
+    print(f"Generating lesson for Day {day_number}: {topic}")
+
     lesson = generate_lesson()
     send_to_slack(lesson)
+    print("Lesson sent to Slack successfully!")
